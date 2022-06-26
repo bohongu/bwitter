@@ -1,27 +1,29 @@
 import React, { useEffect, useState } from "react";
 import { dbService } from "../fBase";
-import { collection, addDoc, getDocs } from "firebase/firestore";
+import { collection, addDoc, query, onSnapshot } from "firebase/firestore";
+import Bweet from "../components/Bweet";
 
-const Home = () => {
+const Home = ({ userObj }) => {
   const [bweet, setBweet] = useState("");
   const [bweets, setBweets] = useState([]);
-  const getBweets = async () => {
-    const dbBweets = await getDocs(collection(dbService, "bweets"));
-    dbBweets.forEach((document) => {
-      const bweetObject = {
-        ...document.data(),
-        id: document.id,
-      };
-      setBweets((prev) => [bweetObject, ...prev]);
+  useEffect(() => {
+    const q = query(collection(dbService, "bweets"));
+    onSnapshot(q, (snapshot) => {
+      const bweetArray = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setBweets(bweetArray);
     });
-  };
+  }, []);
 
   const onSubmit = async (event) => {
     event.preventDefault();
     try {
-      const docRef = await addDoc(collection(dbService, "bweets"), {
-        bweet,
+      await addDoc(collection(dbService, "bweets"), {
+        text: bweet,
         createdAt: Date.now(),
+        creatorId: userObj.uid,
       });
       setBweet("");
     } catch (error) {
@@ -48,6 +50,15 @@ const Home = () => {
         />
         <input type="submit" value="Bweet" />
       </form>
+      <div>
+        {bweets.map((bweet) => (
+          <Bweet
+            key={bweet.id}
+            bweetObj={bweet}
+            isOwner={bweet.creatorId === userObj.uid}
+          />
+        ))}
+      </div>
     </div>
   );
 };

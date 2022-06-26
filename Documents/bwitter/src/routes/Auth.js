@@ -1,4 +1,3 @@
-import { async } from "@firebase/util";
 import React, { useState } from "react";
 import {
   createUserWithEmailAndPassword,
@@ -27,15 +26,10 @@ const Auth = () => {
   const onSubmit = async (event) => {
     event.preventDefault();
     try {
-      let data;
       if (newAccount) {
-        data = await createUserWithEmailAndPassword(
-          authService,
-          email,
-          password
-        );
+        await createUserWithEmailAndPassword(authService, email, password);
       } else {
-        data = await signInWithEmailAndPassword(authService, email, password);
+        await signInWithEmailAndPassword(authService, email, password);
       }
     } catch (error) {
       setError(error.message);
