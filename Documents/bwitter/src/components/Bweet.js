@@ -1,15 +1,20 @@
 import React, { useState } from "react";
-import { dbService } from "../fBase";
+import { dbService, storageSerivce } from "../fBase";
 import { doc, deleteDoc, updateDoc } from "firebase/firestore";
+import { deleteObject, ref } from "firebase/storage";
 
 const Bweet = ({ bweetObj, isOwner }) => {
   const [editing, setEditing] = useState(false);
   const [newBweet, setNewBweet] = useState(bweetObj.text);
   const BweetTextRef = doc(dbService, "bweets", `${bweetObj.id}`);
+  const BweetFileRef = ref(storageSerivce, bweetObj.attachmentUrl);
   const onDeleteClick = async () => {
     const ok = window.confirm("Are you sure DELETE?");
     if (ok) {
       await deleteDoc(BweetTextRef);
+    }
+    if (bweetObj.attachmentUrl) {
+      await deleteObject(ref(BweetFileRef));
     }
   };
 
@@ -49,6 +54,9 @@ const Bweet = ({ bweetObj, isOwner }) => {
       ) : (
         <>
           <h4>{bweetObj.text}</h4>
+          {bweetObj.attachmentUrl && (
+            <img src={bweetObj.attachmentUrl} width="50px" height="50px" />
+          )}
           {isOwner && (
             <>
               <button onClick={onDeleteClick}>Delete Bweet</button>
