@@ -19,9 +19,9 @@ const Home = ({ userObj }) => {
   }, []);
 
   return (
-    <div>
+    <div className="container">
       <BweetFactory userObj={userObj} />
-      <div>
+      <div style={{ marginTop: 30 }}>
         {bweets.map((bweet) => (
           <Bweet
             key={bweet.id}
